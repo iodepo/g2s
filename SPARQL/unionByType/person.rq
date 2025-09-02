@@ -1,0 +1,199 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+prefix prov: <http://www.w3.org/ns/prov#>
+PREFIX schema: <https://schema.org/>
+PREFIX geosparql: <http://www.opengis.net/ont/geosparql#>
+
+SELECT DISTINCT (?s as ?id) ?g ?type ?name ?description ?contributor ?keywords
+    ?variableMeasured ?provider
+    ?contenturl ?courseName ?url
+    ?location ?iritype ?wkt ?geom ?lat ?long ?place_name
+    ?temporalCoverage ?datePublished ?dateModified
+    ?sameAs ?citation ?license ?version ?includedInDataCatalog ?memberOf
+    ?parentOrganization ?knowsAbout ?affiliation ?category
+    ?vehicleConfiguration ?vehicleSpecialUsage
+    ?jobTitle ?knowsLanguage ?educationalCredentialAwarded ?author
+    ?hasCourseInstance ?location ?areaServed ?startDate ?endDate
+
+WHERE {
+{
+        graph ?g {
+            ?s rdf:type schema:Person .
+            ?s schema:name ?name .
+            BIND("Person" AS ?type)
+        }
+    }   UNION  {
+        graph ?g {
+            ?s rdf:type schema:Person .
+	     ?s schema:provider ?provideriri .
+             ?provideriri schema:name ?provider .
+            BIND("Person" AS ?type)
+        }
+    } UNION {
+        graph ?g {
+            ?s rdf:type schema:Person .
+            ?s schema:description ?description .
+            BIND("Person" AS ?type)
+        }
+    } UNION {
+        graph ?g {
+            ?s rdf:type schema:Person .
+            ?s schema:contributor ?contributor .
+            BIND("Person" AS ?type)
+        }
+    } UNION {
+        graph ?g {
+            ?s rdf:type schema:Person .
+            ?s schema:url ?url .
+            BIND("Person" AS ?type)
+        }
+    } UNION {
+        graph ?g {
+            ?s rdf:type schema:Person .
+            ?s schema:location ?location .
+            BIND("Person" AS ?type)
+        }
+    } UNION {
+        graph ?g {
+            ?s rdf:type schema:Person .
+            ?s schema:address ?address .
+            BIND("Person" AS ?type)
+        }
+    } UNION {
+        graph ?g {
+            ?s rdf:type schema:Person .
+            ?s schema:temporalCoverage ?temporalCoverage .
+            BIND("Person" AS ?type)
+        }
+    } UNION {
+        SELECT ?s ?type ?dateModified
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Person .
+                ?s schema:dateModified ?dateModified
+                BIND("Person" AS ?type)
+            }
+        }
+    } UNION {
+        SELECT ?s ?type ?datePublished
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Person .
+                ?s schema:datePublished ?datePublished .
+                BIND("Person" AS ?type)
+            }
+        }
+    } UNION {
+        SELECT ?s ?type ?sameAs
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Person .
+                ?s schema:sameAs ?sameAs .
+                BIND("Person" AS ?type)
+            }
+        }
+    }   UNION {
+        SELECT ?s ?type ?memberOf
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Person .
+                ?s schema:memberOf ?memberOf .
+			    BIND("Person" AS ?type)
+            }
+        }
+    }   UNION {
+        SELECT ?s ?knowsAbout
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Person .
+                ?s schema:knowsAbout ?knowsAboutIRI .
+                ?knowsAboutIRI  schema:description ?knowsAbout
+			    BIND("Person" AS ?type)
+            }
+        }
+    } UNION {
+        SELECT ?s ?affiliation
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Person .
+                ?s schema:affiliation ?affiliation .
+			    BIND("Person" AS ?type)
+            }
+        }
+    } UNION {
+        SELECT ?s ?category
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Person .
+                ?s schema:category ?category .
+                BIND("Person" AS ?type)
+            }
+        }
+    }  UNION {
+        SELECT ?s ?jobTitle
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Person .
+                ?s schema:jobTitle ?jobTitle .
+			    BIND("Person" AS ?type)
+            }
+        }
+    } UNION {
+        SELECT ?s ?knowsLanguage
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Person .
+                ?s schema:knowsLanguage ?knowsLanguagenode .
+                ?knowsLanguagenode schema:name ?knowsLanguage .
+			    BIND("Person" AS ?type)
+            }
+        }
+    } UNION {
+        SELECT ?s ?educationalCredentialAwarded
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Person .
+                ?s schema:educationalCredentialAwarded ?educationalCredentialAwarded .
+			    BIND("Person" AS ?type)
+            }
+        }
+    } UNION {
+        SELECT ?s ?author
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Person .
+                ?s schema:author ?authornode .
+                ?authornode schema:name ?author .
+                BIND("Person" AS ?type)
+            }
+        }
+    } UNION {
+        SELECT ?s ?areaServed
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Person .
+                ?s schema:areaServed ?areaServed .
+                BIND("Person" AS ?type)
+            }
+        }
+    } UNION {
+        SELECT ?s ?startDate
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Person .
+                ?s schema:startDate ?startDate .
+                BIND("Person" AS ?type)
+            }
+        }
+    } UNION {
+        SELECT ?s ?endDate
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Person .
+                ?s schema:endDate ?endDate .
+                BIND("Person" AS ?type)
+            }
+        }
+    }
+}

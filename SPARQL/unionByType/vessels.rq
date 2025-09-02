@@ -1,0 +1,161 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+prefix prov: <http://www.w3.org/ns/prov#>
+PREFIX schema: <https://schema.org/>
+PREFIX geosparql: <http://www.opengis.net/ont/geosparql#>
+
+SELECT DISTINCT (?s as ?id) ?g ?type ?name ?description ?contributor ?keywords
+    ?variableMeasured ?provider
+    ?contenturl ?courseName ?url
+    ?location ?iritype ?wkt ?geom ?lat ?long ?place_name
+    ?temporalCoverage ?datePublished ?dateModified
+    ?sameAs ?citation ?license ?version ?includedInDataCatalog ?memberOf
+    ?parentOrganization ?knowsAbout ?affiliation ?category
+    ?vehicleConfiguration ?vehicleSpecialUsage
+    ?jobTitle ?knowsLanguage ?educationalCredentialAwarded ?author
+    ?hasCourseInstance ?location ?areaServed ?startDate ?endDate
+
+WHERE {
+{
+        graph ?g {
+            ?s rdf:type schema:Vehicle .
+            ?s schema:name ?name .
+            BIND("Vehicle" AS ?type)
+        }
+    }   UNION  {
+        graph ?g {
+            ?s rdf:type schema:Vehicle .
+	     ?s schema:provider ?provideriri .
+             ?provideriri schema:name ?provider .
+            BIND("Vehicle" AS ?type)
+        }
+    } UNION {
+        graph ?g {
+            ?s rdf:type schema:Vehicle .
+            ?s schema:description ?description .
+            BIND("Vehicle" AS ?type)
+        }
+    } UNION {
+        graph ?g {
+            ?s rdf:type schema:Vehicle .
+            ?s schema:contributor ?contributor .
+            BIND("Vehicle" AS ?type)
+        }
+    }   UNION {
+        graph ?g {
+            ?s rdf:type schema:Vehicle .
+            ?s schema:url ?url .
+            BIND("Vehicle" AS ?type)
+        }
+    } UNION {
+        graph ?g {
+            ?s rdf:type schema:Vehicle .
+            ?s schema:location ?location .
+            BIND("Vehicle" AS ?type)
+        }
+    } UNION {
+        graph ?g {
+            ?s rdf:type schema:Vehicle .
+            ?s schema:address ?address .
+            BIND("Vehicle" AS ?type)
+        }
+    }  UNION {
+        graph ?g {
+            ?s rdf:type schema:Vehicle .
+            ?s schema:temporalCoverage ?temporalCoverage .
+            BIND("Vehicle" AS ?type)
+        }
+    } UNION {
+        SELECT ?s ?type ?dateModified
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Vehicle .
+                ?s schema:dateModified ?dateModified
+                BIND("Vehicle" AS ?type)
+            }
+        }
+    } UNION {
+        SELECT ?s ?type ?datePublished
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Vehicle .
+                ?s schema:datePublished ?datePublished .
+                BIND("Vehicle" AS ?type)
+            }
+        }
+    } UNION {
+        SELECT ?s ?type ?sameAs
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Vehicle .
+                ?s schema:sameAs ?sameAs .
+                BIND("Vehicle" AS ?type)
+            }
+        }
+    }   UNION {
+        SELECT ?s ?category
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Vehicle .
+                ?s schema:category ?category .
+                BIND("Vehicle" AS ?type)
+            }
+        }
+    } UNION {
+        SELECT ?s ?vehicleConfiguration
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Vehicle .
+                ?s schema:vehicleConfiguration ?vehicleConfiguration .
+			    BIND("Vehicle" AS ?type)
+            }
+        }
+    } UNION {
+        SELECT ?s ?vehicleSpecialUsage
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Vehicle .
+                ?s schema:vehicleSpecialUsage ?vehicleSpecialUsage .
+			    BIND("Vehicle" AS ?type)
+            }
+        }
+    }   UNION {
+        SELECT ?s ?author
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Vehicle .
+                ?s schema:author ?authornode .
+                ?authornode schema:name ?author .
+                BIND("Vehicle" AS ?type)
+            }
+        }
+    }  UNION {
+        SELECT ?s ?areaServed
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Vehicle .
+                ?s schema:areaServed ?areaServed .
+                BIND("Vehicle" AS ?type)
+            }
+        }
+    } UNION {
+        SELECT ?s ?startDate
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Vehicle .
+                ?s schema:startDate ?startDate .
+                BIND("Vehicle" AS ?type)
+            }
+        }
+    } UNION {
+        SELECT ?s ?endDate
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Vehicle .
+                ?s schema:endDate ?endDate .
+                BIND("Vehicle" AS ?type)
+            }
+        }
+    }
+}

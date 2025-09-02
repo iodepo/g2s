@@ -1,0 +1,34 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX schema: <https://schema.org/>
+PREFIX geosparql: <http://www.opengis.net/ont/geosparql#>
+
+
+SELECT DISTINCT (?s as ?id) ?g ?type ?name ?description ?contributor ?keywords
+    ?variableMeasured ?provider
+    ?contenturl ?courseName ?url
+    ?location ?iritype ?wkt ?geom ?lat ?long ?place_name
+    ?temporalCoverage ?datePublished ?dateModified
+    ?sameAs ?citation ?license ?version ?includedInDataCatalog ?memberOf
+    ?parentOrganization ?knowsAbout ?affiliation ?category
+    ?vehicleConfiguration ?vehicleSpecialUsage
+    ?jobTitle ?knowsLanguage ?educationalCredentialAwarded ?author
+    ?hasCourseInstance ?location ?areaServed ?startDate ?endDate
+
+WHERE {
+    GRAPH ?g {
+        BIND(<https://schema.org/Vehicle> AS ?iritype)
+        ?s rdf:type ?iritype .
+        BIND(REPLACE(STR(?iritype), "https://schema.org/", "") AS ?type)
+
+        OPTIONAL { ?s schema:vehicleConfiguration ?vehicleConfiguration . }
+        OPTIONAL { ?s schema:vehicleSpecialUsage ?vehicleSpecialUsage . }
+        OPTIONAL { ?s schema:name ?name . }
+        OPTIONAL { ?s schema:description ?description . }
+        OPTIONAL { ?s schema:location ?location . }
+        # Add more OPTIONAL patterns as needed
+    }
+    FILTER (BOUND(?vehicleConfiguration) || BOUND(?vehicleSpecialUsage))
+}

@@ -1,0 +1,236 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+prefix prov: <http://www.w3.org/ns/prov#>
+PREFIX schema: <https://schema.org/>
+PREFIX geosparql: <http://www.opengis.net/ont/geosparql#>
+
+SELECT DISTINCT (?s as ?id) ?g ?type ?name ?description ?contributor ?keywords
+    ?variableMeasured ?provider
+    ?contenturl ?courseName ?url
+    ?location ?iritype ?wkt ?geom ?lat ?long ?place_name
+    ?temporalCoverage ?datePublished ?dateModified
+    ?sameAs ?citation ?license ?version ?includedInDataCatalog ?memberOf
+    ?parentOrganization ?knowsAbout ?affiliation ?category
+    ?vehicleConfiguration ?vehicleSpecialUsage
+    ?jobTitle ?knowsLanguage ?educationalCredentialAwarded ?author
+    ?hasCourseInstance ?location ?areaServed ?startDate ?endDate
+
+WHERE {
+{
+        graph ?g {
+            ?s rdf:type schema:Map .
+            ?s schema:name ?name .
+			BIND("Map" AS ?type)
+        }
+    } UNION {
+        graph ?g {
+            ?s rdf:type schema:Map .
+            ?s schema:variableMeasured ?variableMeasurediri .
+            ?variableMeasurediri schema:name ?variableMeasured .
+			BIND("Map" AS ?type)
+        }
+    } UNION  {
+        graph ?g {
+            ?s rdf:type schema:Map .
+	        ?s schema:provider ?provideriri .
+	        ?provideriri schema:name ?provider .
+            BIND("Map" AS ?type)
+        }
+    } UNION {
+        graph ?g {
+            ?s rdf:type schema:Map .
+            ?s schema:description ?description .
+            BIND("Map" AS ?type)
+        }
+    } UNION {
+        graph ?g {
+            ?s rdf:type schema:Map .
+            ?s schema:contributor ?contributor .
+            BIND("Map" AS ?type)
+        }
+    } UNION {
+        graph ?g {
+            ?s rdf:type schema:Map .
+            ?s schema:keywords ?keywords .
+            FILTER (!isIRI(?keywords) && !isBlank(?keywords))
+			BIND("Map" AS ?type)
+        }
+    } UNION {
+        graph ?g {
+            ?s rdf:type schema:Map .
+            ?s schema:distribution ?distribution .
+            ?distribution schema:contentUrl ?contenturl .
+            FILTER (!isIRI(?contenturl) && !isBlank(?contenturl))
+			BIND("Map" AS ?type)
+        }
+    } UNION {
+        graph ?g {
+            ?s rdf:type schema:Map .
+            ?s schema:keywords ?irikeywords .
+            ?irikeywords a schema:DefinedTerm .
+            ?irikeywords schema:name ?keywords .
+			BIND("Map" AS ?type)
+        }
+    }  UNION {
+        graph ?g {
+            ?s rdf:type schema:Map .
+            ?s schema:url ?url .
+            BIND("Map" AS ?type)
+        }
+    } UNION {
+        graph ?g {
+            ?s rdf:type schema:Map .
+            ?s schema:location ?location .
+            BIND("Map" AS ?type)
+        }
+    } UNION {
+        graph ?g {
+            ?s rdf:type schema:Map .
+            ?s schema:address ?address .
+            BIND("Map" AS ?type)
+        }
+    }  UNION {
+        graph ?g {
+            ?s rdf:type schema:Map .
+            ?s schema:spatialCoverage ?sc .
+            ?sc a schema:Place .
+            ?sc schema:name ?place_name .
+            FILTER (!isIRI(?place_name)) .
+			BIND("Map" AS ?type)
+        }
+    } UNION {
+        graph ?g {
+            ?s rdf:type schema:Map .
+            ?s schema:spatialCoverage ?sc .
+            ?sc a schema:Place .
+            ?sc schema:latitude ?lat .
+            ?sc schema:longitude ?long .
+			BIND("Map" AS ?type)
+        }
+    } UNION {
+        graph ?g {
+            ?s rdf:type schema:Map .
+            ?s schema:spatialCoverage ?sc .
+            ?sc a schema:Place .
+            ?sc schema:geo ?geo .
+            ?geo a ?geotype .
+            ?geo ?geompred ?geom .
+            VALUES ?geompred { schema:box schema:polygon }
+			BIND("Map" AS ?type)
+        }
+    } UNION {
+        graph ?g {
+            ?s rdf:type schema:Map .
+            ?s geosparql:hasGeometry ?hasgeom .
+            ?hasgeom geosparql:asWKT ?wkt
+			BIND("Map" AS ?type)
+        }
+    } UNION {
+        graph ?g {
+            ?s rdf:type schema:Map .
+            ?s schema:temporalCoverage ?temporalCoverage .
+            BIND("Map" AS ?type)
+        }
+    } UNION {
+        SELECT ?s ?type ?dateModified
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Map .
+                ?s schema:dateModified ?dateModified
+                BIND("Map" AS ?type)
+            }
+        }
+    } UNION {
+        SELECT ?s ?type ?datePublished
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Map .
+                ?s schema:datePublished ?datePublished .
+                BIND("Map" AS ?type)
+            }
+        }
+    } UNION {
+        SELECT ?s ?type ?sameAs
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Map .
+                ?s schema:sameAs ?sameAs .
+                BIND("Map" AS ?type)
+            }
+        }
+    } UNION {
+        SELECT ?s ?type ?license
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Map .
+                ?s schema:license ?license .
+			    BIND("Map" AS ?type)
+            }
+        }
+    } UNION {
+        SELECT ?s ?type ?citation
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Map .
+                ?s schema:citation ?citation .
+			    BIND("Map" AS ?type)
+            }
+        }
+    } UNION {
+        SELECT ?s ?type ?version
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Map .
+                ?s schema:version ?version .
+			    BIND("Map" AS ?type)
+            }
+        }
+    }  UNION {
+        SELECT ?s ?category
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Map .
+                ?s schema:category ?category .
+                BIND("Map" AS ?type)
+            }
+        }
+    }  UNION {
+        SELECT ?s ?author
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Map .
+                ?s schema:author ?authornode .
+                ?authornode schema:name ?author .
+                BIND("Map" AS ?type)
+            }
+        }
+    }  UNION {
+        SELECT ?s ?areaServed
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Map .
+                ?s schema:areaServed ?areaServed .
+                BIND("Map" AS ?type)
+            }
+        }
+    } UNION {
+        SELECT ?s ?startDate
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Map .
+                ?s schema:startDate ?startDate .
+                BIND("Map" AS ?type)
+            }
+        }
+    } UNION {
+        SELECT ?s ?endDate
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Map .
+                ?s schema:endDate ?endDate .
+                BIND("Map" AS ?type)
+            }
+        }
+    }
+}

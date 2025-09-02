@@ -1,0 +1,51 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+prefix prov: <http://www.w3.org/ns/prov#>
+PREFIX schema: <https://schema.org/>
+PREFIX geosparql: <http://www.opengis.net/ont/geosparql#>
+
+SELECT DISTINCT (?s as ?id) ?g ?type ?name ?description ?contributor ?keywords
+    ?variableMeasured ?provider
+    ?contenturl ?courseName ?url
+    ?location ?iritype ?wkt ?geom ?lat ?long ?place_name
+    ?temporalCoverage ?datePublished ?dateModified
+    ?sameAs ?citation ?license ?version ?includedInDataCatalog ?memberOf
+    ?parentOrganization ?knowsAbout ?affiliation ?category
+    ?vehicleConfiguration ?vehicleSpecialUsage
+    ?jobTitle ?knowsLanguage ?educationalCredentialAwarded ?author
+    ?hasCourseInstance ?location ?areaServed ?startDate ?endDate
+
+WHERE {
+  {
+        SELECT ?s ?knowsAbout
+        WHERE {
+            graph ?g {
+                BIND(<https://schema.org/Person> AS ?iritype)
+                ?s rdf:type ?iritype .
+                ?s schema:knowsAbout ?knowsAboutIRI .
+                ?knowsAboutIRI  schema:description ?knowsAbout
+                BIND(REPLACE(STR(?iritype), "https://schema.org/", "") AS ?type)
+            }
+        }
+    } UNION {
+        SELECT ?s ?affiliation
+        WHERE {
+            graph ?g {
+                BIND(<https://schema.org/Person> AS ?iritype)
+                ?s rdf:type ?iritype .
+                ?s schema:affiliation ?affiliation .
+                BIND(REPLACE(STR(?iritype), "https://schema.org/", "") AS ?type)
+            }
+        }
+    } UNION {
+        SELECT ?s ?category
+        WHERE {
+            graph ?g {
+                ?s rdf:type ?iritype .
+                ?s schema:category ?category .
+                BIND(REPLACE(STR(?iritype), "https://schema.org/", "") AS ?type)
+            }
+        }
+    }
+}

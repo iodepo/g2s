@@ -1,0 +1,143 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+prefix prov: <http://www.w3.org/ns/prov#>
+PREFIX schema: <https://schema.org/>
+PREFIX geosparql: <http://www.opengis.net/ont/geosparql#>
+
+SELECT DISTINCT (?s as ?id) ?g ?type ?name ?description ?contributor ?keywords
+    ?variableMeasured ?provider
+    ?contenturl ?courseName ?url
+    ?location ?iritype ?wkt ?geom ?lat ?long ?place_name
+    ?temporalCoverage ?datePublished ?dateModified
+    ?sameAs ?citation ?license ?version ?includedInDataCatalog ?memberOf
+    ?parentOrganization ?knowsAbout ?affiliation ?category
+    ?vehicleConfiguration ?vehicleSpecialUsage
+    ?jobTitle ?knowsLanguage ?educationalCredentialAwarded ?author
+    ?hasCourseInstance ?location ?areaServed ?startDate ?endDate
+
+WHERE {
+{
+        graph ?g {
+            ?s rdf:type schema:CreativeWork .
+            ?s schema:name ?name .
+            BIND("CreativeWork" AS ?type)
+        }
+    }  UNION  {
+        graph ?g {
+            ?s rdf:type schema:CreativeWork .
+	     ?s schema:provider ?provideriri .
+             ?provideriri schema:name ?provider .
+            BIND("CreativeWork" AS ?type)
+        }
+    } UNION {
+        graph ?g {
+            ?s rdf:type schema:CreativeWork .
+            ?s schema:description ?description .
+            BIND("CreativeWork" AS ?type)
+        }
+    } UNION {
+        graph ?g {
+            ?s rdf:type schema:CreativeWork .
+            ?s schema:contributor ?contributor .
+            BIND("CreativeWork" AS ?type)
+        }
+    }  UNION {
+        graph ?g {
+            ?s rdf:type schema:CreativeWork .
+            ?s schema:url ?url .
+            BIND("CreativeWork" AS ?type)
+        }
+    } UNION {
+        graph ?g {
+            ?s rdf:type schema:CreativeWork .
+            ?s schema:location ?location .
+            BIND("CreativeWork" AS ?type)
+        }
+    } UNION {
+        graph ?g {
+            ?s rdf:type schema:CreativeWork .
+            ?s schema:address ?address .
+            BIND("CreativeWork" AS ?type)
+        }
+    } UNION {
+        graph ?g {
+            ?s rdf:type schema:CreativeWork .
+            ?s schema:temporalCoverage ?temporalCoverage .
+            BIND("CreativeWork" AS ?type)
+        }
+    } UNION {
+        SELECT ?s ?type ?dateModified
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:CreativeWork .
+                ?s schema:dateModified ?dateModified
+                BIND("CreativeWork" AS ?type)
+            }
+        }
+    } UNION {
+        SELECT ?s ?type ?datePublished
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:CreativeWork .
+                ?s schema:datePublished ?datePublished .
+                BIND("CreativeWork" AS ?type)
+            }
+        }
+    } UNION {
+        SELECT ?s ?type ?sameAs
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:CreativeWork .
+                ?s schema:sameAs ?sameAs .
+                BIND("CreativeWork" AS ?type)
+            }
+        }
+    } UNION {
+        SELECT ?s ?category
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:CreativeWork .
+                ?s schema:category ?category .
+                BIND("CreativeWork" AS ?type)
+            }
+        }
+    }  UNION {
+        SELECT ?s ?author
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:CreativeWork .
+                ?s schema:author ?authornode .
+                ?authornode schema:name ?author .
+                BIND("CreativeWork" AS ?type)
+            }
+        }
+    }   UNION {
+        SELECT ?s ?areaServed
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:CreativeWork .
+                ?s schema:areaServed ?areaServed .
+                BIND("CreativeWork" AS ?type)
+            }
+        }
+    } UNION {
+        SELECT ?s ?startDate
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:CreativeWork .
+                ?s schema:startDate ?startDate .
+                BIND("CreativeWork" AS ?type)
+            }
+        }
+    } UNION {
+        SELECT ?s ?endDate
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:CreativeWork .
+                ?s schema:endDate ?endDate .
+                BIND("CreativeWork" AS ?type)
+            }
+        }
+    }
+}

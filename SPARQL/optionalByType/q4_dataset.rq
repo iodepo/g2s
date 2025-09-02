@@ -1,0 +1,113 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX schema: <https://schema.org/>
+PREFIX geosparql: <http://www.opengis.net/ont/geosparql#>
+
+SELECT DISTINCT (?s AS ?id) ?g ?type ?name ?description ?contributor ?keywords
+    ?variableMeasured ?provider ?contenturl ?courseName ?url
+    ?location ?iritype ?wkt ?geom ?lat ?long ?place_name
+    ?temporalCoverage ?datePublished ?dateModified
+    ?sameAs ?citation ?license ?version ?includedInDataCatalog ?memberOf
+    ?parentOrganization ?knowsAbout ?affiliation ?category
+    ?vehicleConfiguration ?vehicleSpecialUsage
+    ?jobTitle ?knowsLanguage ?educationalCredentialAwarded ?author
+    ?hasCourseInstance ?areaServed ?startDate ?endDate
+
+WHERE {
+    graph ?g {
+        ?s rdf:type schema:Dataset .
+        ?s schema:description ?description .
+        ?s schema:name ?name .
+        BIND("Dataset" AS ?type)
+
+        # Description as variableMeasured
+        OPTIONAL {
+            ?s schema:description ?variableMeasured .
+        }
+
+        # Contributor
+        OPTIONAL {
+            ?s schema:contributor ?contributor .
+        }
+
+        # Keywords as literals
+        OPTIONAL {
+            ?s schema:keywords ?keywords .
+            FILTER (!isIRI(?keywords) && !isBlank(?keywords))
+        }
+
+        # Distribution with contentUrl
+        OPTIONAL {
+            ?s schema:distribution ?distribution .
+            ?distribution schema:contentUrl ?contenturl .
+            FILTER (!isIRI(?contenturl) && !isBlank(?contenturl))
+        }
+
+        # Keywords as DefinedTerm
+        OPTIONAL {
+            ?s schema:keywords ?irikeywords .
+            ?irikeywords a schema:DefinedTerm .
+            ?irikeywords schema:name ?keywords .
+            FILTER (isIRI(?irikeywords))
+        }
+
+        # Spatial coverage with latitude and longitude
+        OPTIONAL {
+            ?s schema:spatialCoverage ?sc .
+            ?sc a schema:Place .
+            ?sc schema:latitude ?lat .
+            ?sc schema:longitude ?long .
+        }
+
+        # Spatial coverage with geometric data
+        OPTIONAL {
+            ?s schema:spatialCoverage ?sc .
+            ?sc a schema:Place .
+            ?sc schema:geo ?geo .
+            ?geo a ?geotype .
+            VALUES ?geompred { schema:box schema:polygon }
+            ?geo ?geompred ?geom .
+        }
+
+        # GeoSPARQL geometry
+        OPTIONAL {
+            ?s geosparql:hasGeometry ?hasgeom .
+            ?hasgeom geosparql:asWKT ?wkt .
+        }
+
+        # License
+        OPTIONAL {
+            ?s schema:license ?license .
+        }
+
+        # Citation
+        OPTIONAL {
+            ?s schema:citation ?citation .
+        }
+
+        # Version
+        OPTIONAL {
+            ?s schema:version ?version .
+        }
+
+        # Included in DataCatalog
+        OPTIONAL {
+            ?s schema:includedInDataCatalog ?includedInDataCatalog .
+        }
+
+        # Ensure at least one property is bound
+        FILTER (
+            bound(?variableMeasured) ||
+            bound(?contributor) ||
+            bound(?keywords) ||
+            bound(?contenturl) ||
+            bound(?lat) ||
+            bound(?long) ||
+            bound(?geom) ||
+            bound(?wkt) ||
+            bound(?license) ||
+            bound(?citation) ||
+            bound(?version) ||
+            bound(?includedInDataCatalog)
+        )
+    }
+}

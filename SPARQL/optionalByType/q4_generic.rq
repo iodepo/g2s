@@ -1,0 +1,103 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX schema: <https://schema.org/>
+PREFIX geosparql: <http://www.opengis.net/ont/geosparql#>
+
+SELECT DISTINCT (?s AS ?id) ?g ?type ?name ?description ?contributor ?keywords
+    ?variableMeasured ?provider ?contenturl ?courseName ?url
+    ?location ?iritype ?wkt ?geom ?lat ?long ?place_name
+    ?temporalCoverage ?datePublished ?dateModified
+    ?sameAs ?citation ?license ?version ?includedInDataCatalog ?memberOf
+    ?parentOrganization ?knowsAbout ?affiliation ?category
+    ?vehicleConfiguration ?vehicleSpecialUsage
+    ?jobTitle ?knowsLanguage ?educationalCredentialAwarded ?author
+    ?hasCourseInstance ?areaServed ?startDate ?endDate
+WHERE {
+    GRAPH ?g {
+        ?s rdf:type ?iritype .
+        BIND(REPLACE(STR(?iritype), "https://schema.org/", "") AS ?type)
+
+        # Basic properties
+        OPTIONAL { ?s schema:description ?description . }
+        OPTIONAL { ?s schema:name ?name . }
+        OPTIONAL { ?s schema:url ?url . }
+        OPTIONAL { ?s schema:location ?location . }
+        OPTIONAL { ?s schema:address ?address . }
+        OPTIONAL { ?s schema:temporalCoverage ?temporalCoverage . }
+        OPTIONAL { ?s schema:dateModified ?dateModified . }
+        OPTIONAL { ?s schema:datePublished ?datePublished . }
+        OPTIONAL { ?s schema:sameAs ?sameAs . }
+        OPTIONAL { ?s schema:category ?category . }
+        OPTIONAL { ?s schema:areaServed ?areaServed . }
+        OPTIONAL { ?s schema:startDate ?startDate . }
+        OPTIONAL { ?s schema:endDate ?endDate . }
+
+        # Type-specific properties for DataCatalog
+        OPTIONAL {
+            FILTER (?iritype = <https://schema.org/DataCatalog>)
+            OPTIONAL {
+                ?s schema:keywords ?keywords .
+                FILTER (!isIRI(?keywords) && !isBlank(?keywords))
+            }
+            OPTIONAL {
+                ?s schema:keywords ?irikeywords .
+                ?irikeywords a schema:DefinedTerm .
+                ?irikeywords schema:name ?keywords .
+                FILTER (isIRI(?irikeywords))
+            }
+        }
+
+        # Properties with intermediate nodes
+        OPTIONAL {
+            ?s schema:spatialCoverage ?sc .
+            ?sc a schema:Place .
+            ?sc schema:name ?place_name .
+            FILTER (!isIRI(?place_name))
+        }
+        OPTIONAL {
+            ?s schema:author ?authornode .
+            ?authornode schema:name ?author .
+        }
+
+        # Additional properties from SELECT clause
+        OPTIONAL { ?s schema:contributor ?contributor . }
+        OPTIONAL { ?s schema:variableMeasured ?variableMeasured . }
+        OPTIONAL { ?s schema:provider ?provider . }
+        OPTIONAL { ?s schema:contentUrl ?contenturl . }
+        OPTIONAL { ?s schema:courseName ?courseName . }
+        OPTIONAL { ?s schema:citation ?citation . }
+        OPTIONAL { ?s schema:license ?license . }
+        OPTIONAL { ?s schema:version ?version . }
+        OPTIONAL { ?s schema:includedInDataCatalog ?includedInDataCatalog . }
+        OPTIONAL { ?s schema:memberOf ?memberOf . }
+        OPTIONAL { ?s schema:parentOrganization ?parentOrganization . }
+        OPTIONAL { ?s schema:knowsAbout ?knowsAbout . }
+        OPTIONAL { ?s schema:affiliation ?affiliation . }
+        OPTIONAL { ?s schema:vehicleConfiguration ?vehicleConfiguration . }
+        OPTIONAL { ?s schema:vehicleSpecialUsage ?vehicleSpecialUsage . }
+        OPTIONAL { ?s schema:jobTitle ?jobTitle . }
+        OPTIONAL { ?s schema:knowsLanguage ?knowsLanguage . }
+        OPTIONAL { ?s schema:educationalCredentialAwarded ?educationalCredentialAwarded . }
+        OPTIONAL { ?s schema:hasCourseInstance ?hasCourseInstance . }
+    }
+    FILTER (
+        BOUND(?description) ||
+        BOUND(?name) ||
+        BOUND(?keywords) ||
+        BOUND(?url) ||
+        BOUND(?location) ||
+        BOUND(?address) ||
+        BOUND(?place_name) ||
+        BOUND(?temporalCoverage) ||
+        BOUND(?dateModified) ||
+        BOUND(?datePublished) ||
+        BOUND(?sameAs) ||
+        BOUND(?category) ||
+        BOUND(?author) ||
+        BOUND(?areaServed) ||
+        BOUND(?startDate) ||
+        BOUND(?endDate)
+    )
+}

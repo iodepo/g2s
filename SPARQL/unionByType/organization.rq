@@ -1,0 +1,152 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+prefix prov: <http://www.w3.org/ns/prov#>
+PREFIX schema: <https://schema.org/>
+PREFIX geosparql: <http://www.opengis.net/ont/geosparql#>
+
+SELECT DISTINCT (?s as ?id) ?g ?type ?name ?description ?contributor ?keywords
+    ?variableMeasured ?provider
+    ?contenturl ?courseName ?url
+    ?location ?iritype ?wkt ?geom ?lat ?long ?place_name
+    ?temporalCoverage ?datePublished ?dateModified
+    ?sameAs ?citation ?license ?version ?includedInDataCatalog ?memberOf
+    ?parentOrganization ?knowsAbout ?affiliation ?category
+    ?vehicleConfiguration ?vehicleSpecialUsage
+    ?jobTitle ?knowsLanguage ?educationalCredentialAwarded ?author
+    ?hasCourseInstance ?location ?areaServed ?startDate ?endDate
+
+WHERE {
+{
+        graph ?g {
+            ?s rdf:type schema:Organization .
+            ?s schema:name ?name .
+            BIND("Organization" AS ?type)
+        }
+    }  UNION  {
+        graph ?g {
+            ?s rdf:type schema:Organization .
+	     ?s schema:provider ?provideriri .
+             ?provideriri schema:name ?provider .
+            BIND("Organization" AS ?type)
+        }
+    } UNION {
+        graph ?g {
+            ?s rdf:type schema:Organization .
+            ?s schema:description ?description .
+            BIND("Organization" AS ?type)
+        }
+    } UNION {
+        graph ?g {
+            ?s rdf:type schema:Organization .
+            ?s schema:contributor ?contributor .
+            BIND("Organization" AS ?type)
+        }
+    } UNION {
+        graph ?g {
+            ?s rdf:type schema:Organization .
+            ?s schema:url ?url .
+            BIND("Organization" AS ?type)
+        }
+    } UNION {
+        graph ?g {
+            ?s rdf:type schema:Organization .
+            ?s schema:location ?location .
+            BIND("Organization" AS ?type)
+        }
+    } UNION {
+        graph ?g {
+            ?s rdf:type schema:Organization .
+            ?s schema:address ?address .
+            BIND("Organization" AS ?type)
+        }
+    }  UNION {
+        graph ?g {
+            ?s rdf:type schema:Organization .
+            ?s schema:temporalCoverage ?temporalCoverage .
+            BIND("Organization" AS ?type)
+        }
+    } UNION {
+        SELECT ?s ?type ?dateModified
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Organization .
+                ?s schema:dateModified ?dateModified
+                BIND("Organization" AS ?type)
+            }
+        }
+    } UNION {
+        SELECT ?s ?type ?datePublished
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Organization .
+                ?s schema:datePublished ?datePublished .
+                BIND("Organization" AS ?type)
+            }
+        }
+    } UNION {
+        SELECT ?s ?type ?sameAs
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Organization .
+                ?s schema:sameAs ?sameAs .
+                BIND("Organization" AS ?type)
+            }
+        }
+    }   UNION {
+        SELECT ?s ?parentOrganization
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Organization .
+                ?s schema:parentOrganization ?parentOrganization .
+			    BIND("Organization" AS ?type)
+            }
+        }
+    }  UNION {
+        SELECT ?s ?category
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Organization .
+                ?s schema:category ?category .
+                BIND("Organization" AS ?type)
+            }
+        }
+    }   UNION {
+        SELECT ?s ?author
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Organization .
+                ?s schema:author ?authornode .
+                ?authornode schema:name ?author .
+                BIND("Organization" AS ?type)
+            }
+        }
+    }   UNION {
+        SELECT ?s ?areaServed
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Organization .
+                ?s schema:areaServed ?areaServed .
+                BIND("Organization" AS ?type)
+            }
+        }
+    } UNION {
+        SELECT ?s ?startDate
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Organization .
+                ?s schema:startDate ?startDate .
+                BIND("Organization" AS ?type)
+            }
+        }
+    } UNION {
+        SELECT ?s ?endDate
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:Organization .
+                ?s schema:endDate ?endDate .
+                BIND("Organization" AS ?type)
+            }
+        }
+    }
+}

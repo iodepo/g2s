@@ -1,0 +1,14 @@
+[project]
+name = "g2s"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "lancedb>=0.24.3",
+    "pandas>=2.3.2",
+    "polars>=1.32.3",
+    "pyproj>=3.7.2",
+    "pysolr>=3.10.0",
+    "shapely>=2.1.1",
+]

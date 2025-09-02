@@ -1,0 +1,198 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+prefix prov: <http://www.w3.org/ns/prov#>
+PREFIX schema: <https://schema.org/>
+PREFIX geosparql: <http://www.opengis.net/ont/geosparql#>
+
+SELECT DISTINCT (?s as ?id) ?g ?type ?name ?description ?contributor ?keywords
+    ?variableMeasured ?provider
+    ?contenturl ?courseName ?url
+    ?location ?iritype ?wkt ?geom ?lat ?long ?place_name
+    ?temporalCoverage ?datePublished ?dateModified
+    ?sameAs ?citation ?license ?version ?includedInDataCatalog ?memberOf
+    ?parentOrganization ?knowsAbout ?affiliation ?category
+    ?vehicleConfiguration ?vehicleSpecialUsage
+    ?jobTitle ?knowsLanguage ?educationalCredentialAwarded ?author
+    ?hasCourseInstance ?location ?areaServed ?startDate ?endDate
+
+WHERE {
+{
+        graph ?g {
+            ?s rdf:type schema:DataCatalog .
+            ?s schema:name ?name .
+            BIND("DataCatalog" AS ?type)
+        }
+    }   UNION  {
+        graph ?g {
+            ?s rdf:type schema:DataCatalog .
+	     ?s schema:provider ?provideriri .
+             ?provideriri schema:name ?provider .
+            BIND("DataCatalog" AS ?type)
+        }
+    } UNION {
+        graph ?g {
+            ?s rdf:type schema:DataCatalog .
+            ?s schema:description ?description .
+            BIND("DataCatalog" AS ?type)
+        }
+    } UNION {
+        graph ?g {
+            ?s rdf:type schema:DataCatalog .
+            ?s schema:contributor ?contributor .
+            BIND("DataCatalog" AS ?type)
+        }
+    }  UNION {
+        graph ?g {
+            ?s rdf:type schema:DataCatalog .
+            ?s schema:keywords ?keywords .
+            FILTER (!isIRI(?keywords) && !isBlank(?keywords))
+			BIND("DataCatalog" AS ?type)
+        }
+    } UNION {
+        graph ?g {
+            ?s rdf:type schema:DataCatalog .
+            ?s schema:keywords ?irikeywords .
+            ?irikeywords a schema:DefinedTerm .
+            ?irikeywords schema:name ?keywords .
+			BIND("DataCatalog" AS ?type)
+        }
+    } UNION {
+        graph ?g {
+            ?s rdf:type schema:DataCatalog .
+            ?s schema:url ?url .
+            BIND("DataCatalog" AS ?type)
+        }
+    } UNION {
+        graph ?g {
+            ?s rdf:type schema:DataCatalog .
+            ?s schema:location ?location .
+            BIND("DataCatalog" AS ?type)
+        }
+    } UNION {
+        graph ?g {
+            ?s rdf:type schema:DataCatalog .
+            ?s schema:address ?address .
+            BIND("DataCatalog" AS ?type)
+        }
+    }  UNION {
+        graph ?g {
+            ?s rdf:type schema:DataCatalog .
+            ?s schema:spatialCoverage ?sc .
+            ?sc a schema:Place .
+            ?sc schema:latitude ?lat .
+            ?sc schema:longitude ?long .
+			BIND("DataCatalog" AS ?type)
+
+        }
+    } UNION {
+        graph ?g {
+            ?s rdf:type schema:DataCatalog .
+            ?s schema:spatialCoverage ?sc .
+            ?sc a schema:Place .
+            ?sc schema:geo ?geo .
+            ?geo a ?geotype .
+            ?geo ?geompred ?geom .
+            VALUES ?geompred { schema:box schema:polygon }
+            #FILTER (!isIRI(?geom))
+			BIND("DataCatalog" AS ?type)
+
+        }
+    } UNION {
+        graph ?g {
+            ?s rdf:type schema:DataCatalog .
+            ?s geosparql:hasGeometry ?hasgeom .
+            ?hasgeom geosparql:asWKT ?wkt
+			BIND("DataCatalog" AS ?type)
+
+        }
+    } UNION {
+        graph ?g {
+            ?s rdf:type schema:DataCatalog .
+            ?s schema:temporalCoverage ?temporalCoverage .
+            BIND("DataCatalog" AS ?type)
+        }
+    } UNION {
+        SELECT ?s ?type ?dateModified
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:DataCatalog .
+                ?s schema:dateModified ?dateModified
+                BIND("DataCatalog" AS ?type)
+            }
+        }
+    } UNION {
+        SELECT ?s ?type ?datePublished
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:DataCatalog .
+                ?s schema:datePublished ?datePublished .
+                BIND("DataCatalog" AS ?type)
+            }
+        }
+    } UNION {
+        SELECT ?s ?type ?sameAs
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:DataCatalog .
+                ?s schema:sameAs ?sameAs .
+                BIND("DataCatalog" AS ?type)
+            }
+        }
+    }  UNION {
+        SELECT ?s ?type ?includedInDataCatalog
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:DataCatalog .
+                ?s schema:includedInDataCatalog ?includedInDataCatalog .
+			    BIND("DataCatalog" AS ?type)
+            }
+        }
+    } UNION {
+        SELECT ?s ?category
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:DataCatalog .
+                ?s schema:category ?category .
+                BIND("DataCatalog" AS ?type)
+            }
+        }
+    } UNION {
+        SELECT ?s ?author
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:DataCatalog .
+                ?s schema:author ?authornode .
+                ?authornode schema:name ?author .
+                BIND("DataCatalog" AS ?type)
+            }
+        }
+    }  UNION {
+        SELECT ?s ?areaServed
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:DataCatalog .
+                ?s schema:areaServed ?areaServed .
+                BIND("DataCatalog" AS ?type)
+            }
+        }
+    } UNION {
+        SELECT ?s ?startDate
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:DataCatalog .
+                ?s schema:startDate ?startDate .
+                BIND("DataCatalog" AS ?type)
+            }
+        }
+    } UNION {
+        SELECT ?s ?endDate
+        WHERE {
+            graph ?g {
+                ?s rdf:type schema:DataCatalog .
+                ?s schema:endDate ?endDate .
+                BIND("DataCatalog" AS ?type)
+            }
+        }
+    }
+}
