@@ -1,0 +1,26 @@
+# Git repository files
+.git
+.gitignore
+
+# Python virtual environment
+.venv/
+__pycache__/
+*.pyc
+
+# IDE/Editor files
+.idea/
+.vscode/
+
+# Temporary files
+*~
+.DS_Store
+
+# Files not needed in the image
+Dockerfile
+Dockerfile~
+.python-version
+README.md~
+workflow.sh
+
+# Data directories that are created inside the container
+stores/

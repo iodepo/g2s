@@ -1,8 +1,8 @@
-# Qlever to Solr (q2s)
+# Qlever to Solr (g2s)
 
 ## About
 
-The q2s application is a multi-stage data processing pipeline that extracts data from a Qlever SPARQL endpoint, processes it, and loads it into a Solr index. The process involves the following stages:
+The g2s application is a multi-stage data processing pipeline that extracts data from a Qlever SPARQL endpoint, processes it, and loads it into a Solr index. The process involves the following stages:
 
 1.  **Query**: Executes a SPARQL query against a Qlever endpoint and stores the results in a Parquet file and a LanceDB table.
 2.  **Group**: Groups the data in the LanceDB table based on a SQL query and stores the result in a new LanceDB table.
@@ -75,7 +75,7 @@ You can override the default arguments by appending them to the `docker run` com
 docker run --rm g2s-app query --source "http://another-source.com" --sink "./stores/files/results.parquet" --query "./SPARQL/some_other_query.rq" --table "my_results"
 ```
 
-## Example command
+## Example command with volume mounts
 
 To use local SPARQL query collection and a local directory for the storage of the generated files, use a command like.
 
@@ -83,7 +83,7 @@ To use local SPARQL query collection and a local directory for the storage of th
 docker run --rm \
 -v $PWD/SPARQL:/app/SPARQL \
 -v $PWD/stores:/app/stores \
-q2s-app query --source  "http://ghost.lan:7007" --sink "./stores/files/results_sparql.parquet" --query "./SPARQL/unionByType/dataCatalog.rq"  --table "sparql_results"
+g2s-app query --source  "http://ghost.lan:7007" --sink "./stores/files/results_sparql.parquet" --query "./SPARQL/unionByType/dataCatalog.rq"  --table "sparql_results"
 ```
 
 ## Run commands
@@ -114,7 +114,7 @@ The `workflow.sh` script provides an example of how to run the entire pipeline f
 ```bash
 #!/bin/bash
 
-SPARQL_ENDPOINT="http://ghost.lan:7007"
+SPARQL_ENDPOINT="http://localhost:7007"
 SOLR_ENDPOINT="http://oih.ioc-africa.org:8983/solr/ckan"
 
 echo "----------> dataCatalog"
