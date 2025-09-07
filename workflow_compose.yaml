@@ -1,0 +1,63 @@
+# Define default settings that will be applied to all services
+x-service-defaults: &service-defaults
+  deploy:
+    restart_policy:
+      condition: "none"
+  labels:
+    - "com.docker.compose.rm=true"
+
+volumes:
+  g2s_dvol:
+
+services:
+  query: ##  TODO, this is likely not need, change to the "list content" service
+    <<: *service-defaults
+    image: g2s-app:latest
+    volumes:
+      - ql_dvol:/data
+    command: >
+      python graph2solr.py query --source   "${SPARQL_ENDPOINT}" --sink "./stores/files/results_sparql.parquet" --query "./SPARQL/unionByType/dataCatalog.rq"  --table "sparql_results"
+
+  group: ##  TODO, this is likely not need, change to the "list content" service
+    <<: *service-defaults
+    image: g2s-app:latest
+    depends_on:
+      query:
+        condition: service_completed_successfully
+    volumes:
+      - ql_dvol:/data
+    command: >
+      python graph2solr.py group --source "sparql_results" --sink './stores/files/results_long_grouped.csv'
+
+  augment: ##  TODO, this is likely not need, change to the "list content" service
+    <<: *service-defaults
+    image: g2s-app:latest
+    depends_on:
+      group:
+        condition: service_completed_successfully
+    volumes:
+      - ql_dvol:/data
+    command: >
+      python graph2solr.py augment --source "sparql_results_grouped"
+
+  jsonl: ##  TODO, this is likely not need, change to the "list content" service
+    <<: *service-defaults
+    image: g2s-app:latest
+    depends_on:
+      augment:
+        condition: service_completed_successfully
+    volumes:
+      - ql_dvol:/data
+    command: >
+      python graph2solr.py jsonl --source "sparql_results_grouped_augmented"
+
+  batch: ##  TODO, this is likely not need, change to the "list content" service
+    <<: *service-defaults
+    image: g2s-app:latest
+    depends_on:
+      jsonl:
+        condition: service_completed_successfully
+    volumes:
+      - ql_dvol:/data
+    command: >
+      python graph2solr.py batch --source "./stores/solrInputFiles/sparql_results_grouped_augmented.jsonl" --sink "${SOLR_ENDPOINT}"
