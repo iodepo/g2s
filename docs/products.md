@@ -33,6 +33,7 @@ classDef golden fill:#B8860B, stroke:#DAA520
 
 
 ## Notes 
+
 The export functions generate products.  These products can be augmented with schema.org types and properties.
 
 Also, we can generate metadata for these products, but do not currently, based on:
@@ -44,9 +45,13 @@ Also, we can generate metadata for these products, but do not currently, based o
 
 A product plus metadata could be published set if we felt we could address the citation and license elements.  
 
+Need to modify the generation to hold products across the types and providers.
+
 ## Questions
+
 Granularity can be of:
 
 * type 
 * provider + type.  
 
+Are SHACL shapes considered products?
