@@ -14,7 +14,6 @@ python graph2solr.py group --source "sparql_results" --sink './stores/files/resu
 python graph2solr.py augment --source "sparql_results_grouped"
 python graph2solr.py jsonl --source "sparql_results_grouped_augmented"
 #python graph2solr.py batch --source "./stores/solrInputFiles/sparql_results_grouped_augmented.jsonl" --sink "http://ghost.lan:8983/solr/ckan"
-python graph2solr.py batch --source "./stores/solrInputFiles/sparql_results_grouped_augmented.jsonl" --sink "${SOLR_ENDPOINT}"
 
 echo "----------> dataset"
 python graph2solr.py query --source   "${SPARQL_ENDPOINT}" --sink "./stores/files/results_sparql.parquet" --query "./SPARQL/unionByType/dataset.rq"  --table "sparql_results"
