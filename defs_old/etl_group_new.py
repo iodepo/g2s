@@ -1,34 +1,16 @@
 import lancedb
 import polars as pl
 
-
-
-def group_mode_new(source, sink, table_name):
+def group_mode_new(source, sink):
     # Parquet file path
-    # pfile = "./stores/files/results_sparql.parquet"  # source would be the file path
-    #
-    # # Get column names from the parquet schema to ensure we only load what we need
-    # schema = pl.read_parquet_schema(pfile)
-    # all_columns = list(schema.keys())  # TODO   Use `LazyFrame.collect_schema().names()`
-    #
-    # # Scan parquet with specific columns instead of loading everything
-    # df = pl.scan_parquet(pfile)
+    pfile = "./stores/files/results_sparql.parquet"
 
-    # -----------------------------------------------------------------------------------
-    # LanceDB version
-    dblocation = "./stores/lancedb"
-    db = lancedb.connect(dblocation)
-    table = db[source]
+    # Get column names from the parquet schema to ensure we only load what we need
+    schema = pl.read_parquet_schema(pfile)
+    all_columns = list(schema.keys())
 
-    # Connect to LanceDB
-    # df = pl.from_arrow(table.to_arrow())
-    df = pl.LazyFrame(table.to_arrow())
-
-    # all_columns = df.columns    # Use `LazyFrame.collect_schema().names()`
-    all_columns = df.collect_schema().names()
-    # print("DataFrame columns:", df.columns)
-
-    # -----------------------------------------------------------------------------------
+    # Scan parquet with specific columns instead of loading everything
+    df = pl.scan_parquet(pfile)
 
     # Define a reusable function for unique column aggregation to avoid repetition
     def unique_agg(column_name):
@@ -72,7 +54,7 @@ def group_mode_new(source, sink, table_name):
             else:
                 agg_expressions.append(pl.col(column).unique().min().alias(f"txt_{column}"))
 
-    # Execute the query with the new streaming engine and the appropriate chunk size
+    # Execute the query with the new streaming engine and appropriate chunk size
     result = (
         df.group_by("id")
         .agg(agg_expressions)
@@ -91,15 +73,13 @@ def group_mode_new(source, sink, table_name):
     if drop_null_expressions:
         result = result.with_columns(drop_null_expressions)
 
-    # Drop rows where the name is empty, NONE or NONE
-    # result = result.filter(pl.col("txt_name").str.contains(r"^(empty|none|NONE)$", literal=True).is_not())
-    # result = result.filter(pl.col("txt_name").str.contains(r"^(empty|none|NONE)$", literal=True).not_())
-
-    # sink
     print("Saving Parquet")
-    result.write_parquet(sink)
+    result.write_parquet("./stores/files/group_new_result.parquet")
 
-    # table: Create or get LanceDB table and write data
+    # Create or get LanceDB table and write data
     print("Saving Lance")
     db = lancedb.connect("./stores/lancedb")
-    db.create_table(name=table_name,  data=result, mode="overwrite")
+    source = "sparql_results"
+    db.create_table(f"{source}_grouped", data=result, mode="overwrite")
+
+

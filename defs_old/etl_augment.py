@@ -16,11 +16,12 @@ def compute_md5(value):
         return None
     return hashlib.md5(value.encode()).hexdigest()
 
-def augment_mode(source, sink, tablename):
-    print(f"Augment mode: Processing data from lancedb table {source}")
+def augment_mode(source):
+    print(f"Augment mode: Processing data from lancedb table {source} to a file")
 
+    # source = "sparql_results_grouped"
     dblocation = "./stores/lancedb"
-    table_name = source      # source = "sparql_results_grouped"
+    table_name = source
 
     # Connect to LanceDB
     db = lancedb.connect(dblocation)
@@ -28,11 +29,11 @@ def augment_mode(source, sink, tablename):
 
     df = pl.from_arrow(table.to_arrow())
 
-    # print("DataFrame columns:", df.columns)
+    print("DataFrame columns:", df.columns)
 
     ## Some basic columns add
 
-    # Polars
+    # In Polars, you'd write it like this:
     df = df.with_columns([
         pl.col('id').map_elements(compute_md5).alias('index_id'),
         pl.lit(date.today().isoformat()).alias('indexed_ts'),
@@ -366,13 +367,10 @@ def augment_mode(source, sink, tablename):
     ## IO section -----------------------------------------------------------------------------------------
 
     print("Saving Parquet")
-    # df.write_parquet("./stores/files/test_augmented.parquet")
-    df.write_parquet(sink)
+    df.write_parquet("./stores/files/test_augmented.parquet")
 
     print("Saving Lance")
-    # db.create_table(f"{source}_augmented", data=df, mode="overwrite")
-    db.create_table(name=tablename, data=df, mode="overwrite")
-
+    db.create_table(f"{source}_augmented", data=df, mode="overwrite")
 
     # process region ##
 

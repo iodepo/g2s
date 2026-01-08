@@ -4,43 +4,6 @@ import sys
 import lancedb
 import numpy as np
 
-"""
-ETL JSONL Module - Data Export and Transformation
-
-This module provides functionality to extract data from LanceDB tables and convert it to JSONL
-(JSON Lines) format for downstream processing, particularly for search indexing systems like Solr.
-
-The module performs several key transformations:
-- Data cleaning and filtering to remove null, empty, and invalid values
-- Geometry field standardization and conversion
-- Data type normalization (floats to strings, numpy arrays to lists)
-- Field mapping and augmentation for specific use cases
-- Generation of searchable key indices
-
-Main Functions:
-- jsonl_mode: Primary function that orchestrates the entire ETL process
-- check_value: Validates individual values for inclusion in final output
-- check_filter: Filters out invalid/empty values during processing
-- to_list: Converts numpy arrays to JSON-serializable lists
-
-Dependencies:
-- lancedb: For database connectivity and data extraction
-- pandas: For data manipulation and transformation
-- numpy: For array processing
-- json: For JSONL output formatting
-
-Usage:
-    The module is typically called as part of a larger ETL pipeline:
-    python graph2solr.py jsonl --source "table_name" --sink "output.jsonl"
-
-Input: LanceDB table containing structured data
-Output: JSONL file with cleaned, transformed, and augmented records
-
-Note: This module includes several field-specific transformations (marked as HACK)
-that should ideally be moved to the augmentation stage of the ETL pipeline.
-"""
-
-
 def check_value(value):
     # Check if the value is None
     if value is None:
@@ -95,8 +58,8 @@ def to_list(value):
     else:
         return value
 
-def jsonl_mode(source, sink):
-    print(f"JSONL mode: Processing data from lancedb table {source} to {sink}")
+def jsonl_mode(source):
+    print(f"JSONL mode: Processing data from lancedb table {source} to a file")
 
     dblocation = "./stores/lancedb"
     table_name = source
@@ -104,8 +67,7 @@ def jsonl_mode(source, sink):
     # Connect to LanceDB
     db = lancedb.connect(dblocation)
     table = db[table_name]
-    # output_jsonl = f"./stores/solrInputFiles/{table_name}.jsonl"  # TODO: this should really become sink
-    output_jsonl = sink
+    output_jsonl = f"./stores/solrInputFiles/{table_name}.jsonl"
 
     all_records = table.to_pandas().to_dict('records')
 

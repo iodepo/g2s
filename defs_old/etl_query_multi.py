@@ -1,45 +1,9 @@
 from io import StringIO
-# from pathlib import Path
+from pathlib import Path
 
 import lancedb
 import polars as pl
 import requests
-
-"""
-ETL Query Module
-
-This module handles the query mode operations for the graph2solr ETL pipeline.
-It performs SPARQL queries against remote endpoints and processes the results
-into structured data formats for further processing.
-
-Main Function:
-    query_mode: Executes SPARQL queries and processes results into Parquet and LanceDB formats
-
-Key Features:
-    - SPARQL endpoint querying with authentication
-    - CSV response processing with Polars
-    - Date field normalization (datePublished, dateModified)
-    - Parquet file output
-    - LanceDB table creation with overwrite mode
-
-Dependencies:
-    - lancedb: Vector database for storing processed results
-    - polars: Fast DataFrame library for data processing
-    - requests: HTTP library for SPARQL endpoint communication
-
-Data Processing:
-    - Handles ragged CSV lines from SPARQL responses
-    - Normalizes date fields to YYYY-MM-DD format
-    - Sets default date values for null entries (0000-01-01)
-    - Stores results in both Parquet format and LanceDB tables
-
-Usage:
-    Called by the main ETL pipeline with parameters:
-    - source: SPARQL endpoint URL
-    - sink: Output Parquet file path
-    - query: Path to SPARQL query file
-    - table: LanceDB table name for storage
-"""
 
 
 def query_mode(source, sink, query, table):
@@ -58,22 +22,39 @@ def query_mode(source, sink, query, table):
     }
 
     # Read the SPARQL query from a file
-    with open(query, "r") as file:
-        query = file.read()
+    with open("./SPARQL/q4_person.rq", "r") as file:
+        query1 = file.read()
 
     # Send the request
-    response = requests.post(url, params=params, headers=headers, data=query)
+    response1 = requests.post(url, params=params, headers=headers, data=query1)
+
+    # Read the SPARQL query from a file
+    with open("./SPARQL/q4_vehicle.rq", "r") as file:
+        query2 = file.read()
+
+    # Send the request
+    response2 = requests.post(url, params=params, headers=headers, data=query2)
+
+    # Load responses into separate Polars DataFrames
+    df1 = pl.read_csv(StringIO(response1.text), truncate_ragged_lines=True)
+    df2 = pl.read_csv(StringIO(response2.text), truncate_ragged_lines=True)
+
+    # Concatenate the DataFrames vertically
+    df = pl.concat([df1, df2], how="vertical")
 
     # Load response into Polars DataFrame
     # df = pl.read_csv(StringIO(response.text))
-    df = pl.read_csv(StringIO(response.text), truncate_ragged_lines=True)
+    # df = pl.read_csv(StringIO(response.text), truncate_ragged_lines=True)
+
+    ## TEMPORAL  ----------------------------------
+    # TODO move to augmentation?
 
     df = df.with_columns(
         # Step 1: Convert string to datetime with auto-detection of ISO format
         pl.col("datePublished").str.to_datetime(format=None, strict=False).alias("datePublished")
     )
 
-    # Step 2: Convert datetime back to string in the desired format
+    # Step 2: Convert datetime back to string in desired format
     df = df.with_columns(
         pl.when(pl.col("datePublished").is_not_null())
         .then(pl.col("datePublished").dt.strftime("%Y-%m-%d"))  # You can use any format here
@@ -86,11 +67,11 @@ def query_mode(source, sink, query, table):
         pl.col("dateModified").str.to_datetime(format=None, strict=False).alias("dateModified")
     )
 
-    # Step 2: Convert datetime back to string in the desired format
+    # Step 2: Convert datetime back to string in desired format
     df = df.with_columns(
         pl.when(pl.col("dateModified").is_not_null())
         .then(pl.col("dateModified").dt.strftime("%Y-%m-%d"))  # You can use any format here
-        .otherwise(pl.col("dateModified").dt.strftime("0000-01-01"))  # set to this if it was None
+        .otherwise(pl.col("dateModified").dt.strftime("0000-01-01"))  # was None
         .alias("dateModified")
     )
 

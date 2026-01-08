@@ -4,6 +4,7 @@ from pathlib import Path
 
 import requests
 
+
 def table_mode(source, sink):
     """Handle table mode operations"""
     print(f"Table mode: Processing data from {source} to {sink}")

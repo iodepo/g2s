@@ -5,7 +5,6 @@ import lancedb
 import pyarrow as pa
 import pyarrow.parquet as pq
 from pyarrow import compute as pc
-
 def compute_md5(value):
     if value is None:
         return None
@@ -257,16 +256,16 @@ def optimized_group_mode(source, sink):
 
     # Stream results in batches instead of loading everything at once
     result_batches = conn.execute(query).fetch_arrow_table().to_batches()
-
+    
     # Process data in batches
     all_batches = []
     for batch in result_batches:
         print(f"Processing batch of size: {batch.num_rows}")
         # Do any batch processing here
         all_batches.append(batch)
-
+        
     # Combine all batches if needed
     print("Saving Lance")
     db.create_table(f"{source}_grouped", data=all_batches, mode="overwrite")
-
+    
     conn.close()
