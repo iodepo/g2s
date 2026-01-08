@@ -1,0 +1,21 @@
+pyld
+polars
+qlever
+pandas
+duckdb
+numpy
+requests
+marimo
+shapely
+pyproj
+typing
+pyarrow
+ibis
+h3converter
+geopandas
+h3
+plotly
+matplotlib
+lancedb==0.16   # 0.19+ current
+sentence-transformers
+
